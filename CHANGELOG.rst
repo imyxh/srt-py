@@ -10,7 +10,7 @@ vv1.1.1
 **Added:**
 
 * Dashboard view mode in srt_runner.py
-* Visability on dashboard showing beamwdith.
+* Visibility on dashboard showing beamwidth.
 
 
 
@@ -22,7 +22,7 @@ vv1.1.0
 * Added npoint scan (sinc) interpolation to daemon/utilities/functions.py
 * Added npoint scan image to dashboard/layouts/graphs.py
 * VLSR calculation added to object_tracker
-* VLSR distributed through daemon 
+* VLSR distributed through daemon
 * VLSR shown on display
 
 **Changed:**

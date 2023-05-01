@@ -65,7 +65,7 @@ def generate_az_el_graph(
         )
     )
 
-    # Marker for visability, basicaslly beamwidth  with azimuth stretched out for high elevation angles. 
+    # Marker for visibility, basically beamwidth with azimuth stretched out for high elevation angles.
 
     az_l = current_location[0]
     el_l = current_location[1]
@@ -79,12 +79,12 @@ def generate_az_el_graph(
 
     fig.add_trace(
         go.Scatter(
-            x=x_vec, 
-            y=y_vec, 
+            x=x_vec,
+            y=y_vec,
             fill="toself",
             fillcolor="rgba(147,112,219,0.1)",
-            text=["Visability"],
-            name='Visability',
+            text=["Visibility"],
+            name='Visibility',
             mode="markers",
             marker_color=["rgba(147,112,219, .8)" for _ in x_vec]
         )
@@ -100,7 +100,7 @@ def generate_az_el_graph(
             textposition="bottom center",
             marker_color=["rgba(0, 0, 152, .8)"],
         )
-    )        
+    )
 
     fig.add_trace(
         go.Scatter(
