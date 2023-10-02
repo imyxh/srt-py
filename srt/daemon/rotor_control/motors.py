@@ -215,10 +215,10 @@ class Rot2Motor(Motor):
         """
         if az is not None and el is not None:
             azimuth = int(
-                self.pulses_per_degree * (az + 360.0) + 0.5
+                self.pulses_per_degree * (az + 360.0)
             )  # Formatted Az Pulse Value
             elevation = int(
-                self.pulses_per_degree * (el + 360.0) + 0.5
+                self.pulses_per_degree * (el + 360.0)
             )  # Formatted El Pulse Value
         else:
             azimuth = 0
@@ -240,7 +240,7 @@ class Rot2Motor(Motor):
         )
         cmd_bytes = cmd_string.encode("ascii")
         # print("Packet of Size " + str(len(cmd_bytes)))
-        # print([hex(val) for val in cmd_bytes])
+        # print(cmd_bytes)
         self.serial.write(cmd_bytes)
 
     def receive_rot2_pkt(self):
@@ -294,7 +294,8 @@ class Rot2Motor(Motor):
         cmd = 0x2F  # Rot2 Set Command
         az_relative = az - self.az_limits[0]
         el_relative = el - self.el_limits[0]
-        self.send_rot2_pkt(cmd, az=az_relative, el=el_relative)
+        #self.send_rot2_pkt(cmd, az=az_relative, el=el_relative)
+        self.send_rot2_pkt(cmd, az=az, el=el)
 
     def status(self):
         """Requests the Current Location of the ROT2 Motor
