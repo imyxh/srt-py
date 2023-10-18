@@ -261,6 +261,41 @@ def generate_popups():
             ),
             dbc.Modal(
                 [
+                    dbc.ModalHeader("Continuous Integration"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Checklist(
+                                options=[{
+                                    "label": "Continuous integration enabled",
+                                    "value": "cont-int"
+                                }],
+                                id="cont-int-check"
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="cont-int-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="cont-int-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="cont-int-modal",
+            ),
+            dbc.Modal(
+                [
                     dbc.ModalHeader("Enter the Motor Offsets"),
                     dbc.ModalBody(
                         [
@@ -438,6 +473,7 @@ def generate_layout():
         "Radio": [
             dbc.DropdownMenuItem("Set Frequency", id="btn-set-freq"),
             dbc.DropdownMenuItem("Set Bandwidth", id="btn-set-samp"),
+            dbc.DropdownMenuItem("Continuous Integration", id="btn-cont-int"),
         ],
         "Routine": [
             dbc.DropdownMenuItem("Start Recording", id="btn-start-record"),
@@ -787,6 +823,33 @@ def register_callbacks(
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "samp-btn-yes":
                 command_thread.add_to_queue(f"samp {samp}")
+            if n_clicks_yes or n_clicks_no or n_clicks_btn:
+                return not is_open
+            return is_open
+
+    @app.callback(
+        Output("cont-int-modal", "is_open"),
+        [
+            Input("btn-cont-int", "n_clicks"),
+            Input("cont-int-btn-yes", "n_clicks"),
+            Input("cont-int-btn-no", "n_clicks"),
+        ],
+        [
+            State("cont-int-modal", "is_open"),
+            State("cont-int-check", "value"),
+        ],
+    )
+    def cont_int_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open, cont_int_check):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            if button_id == "cont-int-btn-yes":
+                en = cont_int_check and "cont-int" in cont_int_check
+                print("Continuous integration:", en)
+                raw_spectrum_thread.set_cont_int(en)
+                cal_spectrum_thread.set_cont_int(en)
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
             return is_open

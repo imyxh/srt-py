@@ -39,6 +39,10 @@ class SpectrumThread(Thread):
         self.spectrum = None
         self.history = []
         self.port = port
+        # whether or not continuous integration is enabled
+        self.cont_int = False
+        # number of times we have integrated already
+        self.cont_int_counts = 0
 
     def run(self):
         """Grabs Samples From ZMQ, Converts them to Numpy, and Stores
@@ -57,10 +61,27 @@ class SpectrumThread(Thread):
             if len(self.history) >= self.history_length:
                 self.history.pop()
             self.history.insert(0, (time.time(), var))
-            self.spectrum = var
+            if self.cont_int:
+                self.spectrum = np.average([self.spectrum, var],
+                    axis=0, weights=[self.cont_int_counts, 1]
+                )
+                self.cont_int_counts += 1
+            else:
+                self.spectrum = var
+
+    def set_cont_int(self, val):
+        """Enable or Disable Continuous Integration, Resetting the Integration Counter
+
+        Parameters
+        ----------
+        val : bool
+            True If Continuous Integration Should Be Enabled, False Otherwise
+        """
+        self.cont_int_counts = 0
+        self.cont_int = val
 
     def get_spectrum(self):
-        """Return Most Recently Received Spectrum
+        """Return Most Recent Spectrum
 
         Returns
         -------
@@ -73,7 +94,7 @@ class SpectrumThread(Thread):
 
         Returns
         -------
-        [(int, ndarary)]
+        [(int, ndarray)]
             Time and Numpy Spectrum Pairs History
         """
         return self.history.copy()
