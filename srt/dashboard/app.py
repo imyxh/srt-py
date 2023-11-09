@@ -287,12 +287,17 @@ def generate_app(config_dir, config_dict):
             else:
                 status_string = "SRT In Use!"
 
+        cf, bandwidth = map(
+            lambda f: "{:.3f} {}".format(f, status_thread.freq_unit.unit_name),
+            status_thread.freq_unit.Hz_to_current_cf_bw(cf, bandwidth)
+        )
+
         status_string = f"""
          #### {status_string}
          - Motor Az, El: {az:.1f}, {el:.1f} deg
          - Motor Offsets: {az_offset:.1f}, {el_offset:.1f} deg
-         - Center Frequency: {cf / pow(10, 6)} MHz
-         - Bandwidth: {bandwidth / pow(10, 6)} MHz
+         - Center Frequency: {cf}
+         - Bandwidth: {bandwidth}
          - VLSR: {vlsr:.1f} km/s
         """
         return status_string

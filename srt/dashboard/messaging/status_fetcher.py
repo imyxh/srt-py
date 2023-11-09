@@ -72,10 +72,6 @@ class FrequencyUnits():
         else:
             raise ValueError("Unknown unit: {}".format(self.freq_unit))
 
-    def Hz_to_current_full(self, freq_Hz):
-        """Like Hz_to_current, But Returns Full Quantity With Unit"""
-        return self.Hz_to_current(freq_Hz) + " " + self.unit_name
-
     def Hz_to_current_cf_bw(self, cf_Hz, bw_Hz):
         """Converts Center Frequency and Bandwidth in Hz to Center Frequency and Bandwidth in
         Current Units
