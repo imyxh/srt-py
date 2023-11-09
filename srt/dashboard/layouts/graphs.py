@@ -283,7 +283,7 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     return fig
 
 
-def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
+def generate_spectrum_graph(bandwidth, cf, spectrum, freq_unit, is_spec_cal):
     """Generates a Graph of Spectrum Data
 
     Parameters
@@ -294,6 +294,8 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
         Center Frequency of the Incoming Spectra
     spectrum : ndarry
         List of Spectrum Samples
+    freq_unit : FrequencyUnits
+        FrequencyUnits Object For Frequency Labels
     is_spec_cal : bool
         Whether or Not spectrum is Calibrated
 
@@ -304,20 +306,8 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal):
     max_histogram_size = 2048
     title = "Calibrated Spectrum" if is_spec_cal else "Raw Spectrum"
     yaxis = "Temperature (K)" if is_spec_cal else "Temp. (Unitless)"
-    if cf > pow(10, 9):
-        cf /= pow(10, 9)
-        bandwidth /= pow(10, 9)
-        xaxis = "Frequency (GHz)"
-    elif cf > pow(10, 6):
-        cf /= pow(10, 6)
-        bandwidth /= pow(10, 6)
-        xaxis = "Frequency (MHz)"
-    elif cf > pow(10, 3):
-        cf /= pow(10, 3)
-        bandwidth /= pow(10, 3)
-        xaxis = "Frequency (kHz)"
-    else:
-        xaxis = "Frequency (Hz)"
+    cf, bandwidth = freq_unit.Hz_to_current_cf_bw(cf, bandwidth)
+    xaxis = "Frequency ({})".format(freq_unit.unit_name)
     fig = go.Figure(
         layout={
             "title": title,

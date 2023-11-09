@@ -296,6 +296,52 @@ def generate_popups():
             ),
             dbc.Modal(
                 [
+                    dbc.ModalHeader("Frequency Units"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(
+                                id="freq-unit-emit",
+                                type="number",
+                                debounce=True,
+                                placeholder="Emission Frequency (MHz)",
+                                style={"width": "100%"},
+                            ),
+                            dcc.RadioItems(
+                                options=[
+                                    "Hz",
+                                    "kHz",
+                                    "MHz",
+                                    "GHz",
+                                    "km/s",
+                                ],
+                                id="freq-unit-radioitems",
+                                value="MHz",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Yes",
+                                id="freq-unit-btn-yes",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                            dbc.Button(
+                                "No",
+                                id="freq-unit-btn-no",
+                                className="ml-auto",
+                                # block=True,
+                                color="secondary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="freq-unit-modal",
+            ),
+            dbc.Modal(
+                [
                     dbc.ModalHeader("Enter the Motor Offsets"),
                     dbc.ModalBody(
                         [
@@ -473,7 +519,10 @@ def generate_layout():
         "Radio": [
             dbc.DropdownMenuItem("Set Frequency", id="btn-set-freq"),
             dbc.DropdownMenuItem("Set Bandwidth", id="btn-set-samp"),
+        ],
+        "Plotting": [
             dbc.DropdownMenuItem("Continuous Integration", id="btn-cont-int"),
+            dbc.DropdownMenuItem("Frequency Units", id="btn-freq-unit"),
         ],
         "Routine": [
             dbc.DropdownMenuItem("Start Recording", id="btn-start-record"),
@@ -544,7 +593,9 @@ def register_callbacks(
             return ""
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
-        return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=True)
+        return generate_spectrum_graph(
+            bandwidth, cf, spectrum, status_thread.freq_unit, is_spec_cal=True
+        )
 
     @app.callback(
         Output("raw-spectrum-histogram", "figure"),
@@ -558,7 +609,9 @@ def register_callbacks(
             return ""
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
-        return generate_spectrum_graph(bandwidth, cf, spectrum, is_spec_cal=False)
+        return generate_spectrum_graph(
+            bandwidth, cf, spectrum, status_thread.freq_unit, is_spec_cal=True
+        )
 
     @app.callback(
         Output("power-graph", "figure"), [Input("interval-component", "n_intervals")]
@@ -850,6 +903,35 @@ def register_callbacks(
                 print("Continuous integration:", en)
                 raw_spectrum_thread.set_cont_int(en)
                 cal_spectrum_thread.set_cont_int(en)
+            if n_clicks_yes or n_clicks_no or n_clicks_btn:
+                return not is_open
+            return is_open
+
+    @app.callback(
+        Output("freq-unit-modal", "is_open"),
+        [
+            Input("btn-freq-unit", "n_clicks"),
+            Input("freq-unit-btn-yes", "n_clicks"),
+            Input("freq-unit-btn-no", "n_clicks"),
+        ],
+        [
+            State("freq-unit-modal", "is_open"),
+            State("freq-unit-emit", "value"),
+            State("freq-unit-radioitems", "value"),
+        ],
+    )
+    def freq_unit_click_func(n_clicks_btn, n_clicks_yes, n_clicks_no, is_open,
+        freq_emit_MHz, freq_unit_radioitems
+    ):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+            if button_id == "freq-unit-btn-yes":
+                if not freq_emit_MHz:
+                    freq_emit_MHz = 0
+                status_thread.freq_unit.set_freq_unit(freq_unit_radioitems, 1E6*freq_emit_MHz)
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
             return is_open

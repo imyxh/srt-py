@@ -93,6 +93,9 @@ The bar at the top of the dashboard manages sending commands to the SRT, which a
 - Radio
   - Set Frequency
   - Set Bandwidth
+- Plotting
+  - Continuous Integration
+  - Frequency Units
 - Routine
   - Start Recording
   - Stop Recording
