@@ -283,7 +283,7 @@ def generate_power_history_graph(tsys, tcal, cal_pwr, spectrum_history):
     return fig
 
 
-def generate_spectrum_graph(bandwidth, cf, spectrum, freq_unit, is_spec_cal):
+def generate_spectrum_graph(bandwidth, cf, spectrum, freq_unit, is_spec_cal, height=None):
     """Generates a Graph of Spectrum Data
 
     Parameters
@@ -298,6 +298,8 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, freq_unit, is_spec_cal):
         FrequencyUnits Object For Frequency Labels
     is_spec_cal : bool
         Whether or Not spectrum is Calibrated
+    height : Int
+        Height of Plot
 
     Returns
     -------
@@ -313,7 +315,7 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, freq_unit, is_spec_cal):
             "title": title,
             "xaxis_title": xaxis,
             "yaxis_title": yaxis,
-            "height": 150,
+            "height": height,
             "margin": dict(
                 l=20,
                 r=20,

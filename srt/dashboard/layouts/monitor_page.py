@@ -342,6 +342,52 @@ def generate_popups():
             ),
             dbc.Modal(
                 [
+                    dbc.ModalHeader("Large Plot (Raw)"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Graph(id="large-raw-spectrum-histogram"),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Close",
+                                id="plot-raw-btn-close",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="plot-raw-modal",
+                fullscreen=True,
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader("Large Plot (Calibrated)"),
+                    dbc.ModalBody(
+                        [
+                            dcc.Graph(id="large-cal-spectrum-histogram"),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Close",
+                                id="plot-cal-btn-close",
+                                className="ml-auto",
+                                # block=True,
+                                color="primary",
+                            ),
+                        ]
+                    ),
+                ],
+                id="plot-cal-modal",
+                fullscreen=True,
+            ),
+            dbc.Modal(
+                [
                     dbc.ModalHeader("Enter the Motor Offsets"),
                     dbc.ModalBody(
                         [
@@ -523,6 +569,8 @@ def generate_layout():
         "Plotting": [
             dbc.DropdownMenuItem("Continuous Integration", id="btn-cont-int"),
             dbc.DropdownMenuItem("Frequency Units", id="btn-freq-unit"),
+            dbc.DropdownMenuItem("Large Plot (Raw)", id="btn-plot-raw"),
+            dbc.DropdownMenuItem("Large Plot (Calibrated)", id="btn-plot-cal"),
         ],
         "Routine": [
             dbc.DropdownMenuItem("Start Recording", id="btn-start-record"),
@@ -594,6 +642,21 @@ def register_callbacks(
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(
+            bandwidth, cf, spectrum, status_thread.freq_unit, is_spec_cal=True, height=150
+        )
+
+    @app.callback(
+        Output("large-cal-spectrum-histogram", "figure"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_large_cal_spectrum_histogram(n):
+        spectrum = cal_spectrum_thread.get_spectrum()
+        status = status_thread.get_status()
+        if status is None or spectrum is None:
+            return ""
+        bandwidth = float(status["bandwidth"])
+        cf = float(status["center_frequency"])
+        return generate_spectrum_graph(
             bandwidth, cf, spectrum, status_thread.freq_unit, is_spec_cal=True
         )
 
@@ -602,6 +665,21 @@ def register_callbacks(
         [Input("interval-component", "n_intervals")],
     )
     def update_raw_spectrum_histogram(n):
+        spectrum = raw_spectrum_thread.get_spectrum()
+        status = status_thread.get_status()
+        if status is None or spectrum is None:
+            return ""
+        bandwidth = float(status["bandwidth"])
+        cf = float(status["center_frequency"])
+        return generate_spectrum_graph(
+            bandwidth, cf, spectrum, status_thread.freq_unit, is_spec_cal=False, height=150
+        )
+
+    @app.callback(
+        Output("large-raw-spectrum-histogram", "figure"),
+        [Input("interval-component", "n_intervals")],
+    )
+    def update_large_raw_spectrum_histogram(n):
         spectrum = raw_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
@@ -937,6 +1015,35 @@ def register_callbacks(
                 else:
                     status_thread.freq_unit.set_freq_unit(freq_unit_radioitems)
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
+                return not is_open
+            return is_open
+
+    @app.callback(
+        Output("plot-raw-modal", "is_open"),
+        [
+            Input("btn-plot-raw", "n_clicks"),
+            Input("plot-raw-btn-close", "n_clicks"),
+        ],
+        [
+            State("plot-raw-modal", "is_open"),
+        ],
+    )
+    @app.callback(
+        Output("plot-cal-modal", "is_open"),
+        [
+            Input("btn-plot-cal", "n_clicks"),
+            Input("plot-cal-btn-close", "n_clicks"),
+        ],
+        [
+            State("plot-cal-modal", "is_open"),
+        ],
+    )
+    def basic_close_func(n_clicks_btn, n_clicks_close, is_open):
+        ctx = dash.callback_context
+        if not ctx.triggered:
+            return is_open
+        else:
+            if n_clicks_close or n_clicks_btn:
                 return not is_open
             return is_open
 
