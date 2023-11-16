@@ -18,22 +18,27 @@ class FrequencyUnits():
     def __init__(self, status_thread):
         # reference to status thread
         self.status_thread = status_thread
+        # description of the physical quantity (e.g. "frequency" or "VLSR"
+        self.unit_desc = "Frequency"
         # user's currently selected frequency unit
         self.unit_name = "MHz"
         # frequency of the unshifted emission (if velocity units are used)
         self.freq_emit_Hz = 0
 
-    def set_freq_unit(self, unit, freq_emit_Hz=0):
+    def set_freq_unit(self, unit, desc="Frequency", freq_emit_Hz=0):
         """Sets the Current Frequency Units
 
         Parameters
         ----------
         unit : str
             Name of the Unit
+        desc : str
+            Description of the Physical Quantity (e.g. "frequency" or "VLSR")
         freq_emit_Hz : float
             For km/s Units, Frequency of the Unshifted Emission
         """
         self.unit_name = unit
+        self.unit_desc = desc
         print("setting frequency unit to", unit)
         if unit == "km/s" and freq_emit_Hz <= 0:
             raise ValueError("freq_emit_Hz must be positive")
@@ -83,12 +88,12 @@ class FrequencyUnits():
 
         Returns
         -------
-        (Center Frequency, Bandwidth) In Currently Set Units
+        (Center Frequency, Bandwidth) In Currently Set Units. Bandwidth Is Negative if Velocity Units Are Requested.
         """
         if self.unit_name == "km/s":
             return (
                 self.status_thread.get_status()["vlsr"],
-                bw_Hz / self.freq_emit_Hz * 299792.46
+                bw_Hz / self.freq_emit_Hz * -299792.46
             )
         else:
             return (self.Hz_to_current(cf_Hz), self.Hz_to_current(bw_Hz))

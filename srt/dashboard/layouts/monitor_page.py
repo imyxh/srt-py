@@ -602,7 +602,6 @@ def register_callbacks(
         [Input("interval-component", "n_intervals")],
     )
     def update_raw_spectrum_histogram(n):
-
         spectrum = raw_spectrum_thread.get_spectrum()
         status = status_thread.get_status()
         if status is None or spectrum is None:
@@ -610,7 +609,7 @@ def register_callbacks(
         bandwidth = float(status["bandwidth"])
         cf = float(status["center_frequency"])
         return generate_spectrum_graph(
-            bandwidth, cf, spectrum, status_thread.freq_unit, is_spec_cal=True
+            bandwidth, cf, spectrum, status_thread.freq_unit, is_spec_cal=False
         )
 
     @app.callback(
@@ -929,9 +928,14 @@ def register_callbacks(
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "freq-unit-btn-yes":
-                if not freq_emit_MHz:
-                    freq_emit_MHz = 0
-                status_thread.freq_unit.set_freq_unit(freq_unit_radioitems, 1E6*freq_emit_MHz)
+                if freq_unit_radioitems == "km/s":
+                    if not freq_emit_MHz:
+                        freq_emit_MHz = 1420.405751768
+                    status_thread.freq_unit.set_freq_unit(
+                        freq_unit_radioitems, "VLSR", 1E6*freq_emit_MHz
+                    )
+                else:
+                    status_thread.freq_unit.set_freq_unit(freq_unit_radioitems)
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
             return is_open

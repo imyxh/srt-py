@@ -307,7 +307,7 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, freq_unit, is_spec_cal):
     title = "Calibrated Spectrum" if is_spec_cal else "Raw Spectrum"
     yaxis = "Temperature (K)" if is_spec_cal else "Temp. (Unitless)"
     cf, bandwidth = freq_unit.Hz_to_current_cf_bw(cf, bandwidth)
-    xaxis = "Frequency ({})".format(freq_unit.unit_name)
+    xaxis = f"{freq_unit.unit_desc} ({freq_unit.unit_name})"
     fig = go.Figure(
         layout={
             "title": title,
@@ -336,18 +336,13 @@ def generate_spectrum_graph(bandwidth, cf, spectrum, freq_unit, is_spec_cal):
         )
     else:
         fig.add_trace(
-            go.Histogram(
-                xbins={
-                    "size": bandwidth / len(spectrum),
-                    "start": -bandwidth / 2 + cf,
-                    "end": bandwidth / 2 + cf,
-                },
-                autobinx=False,
+            go.Bar(
                 x=data_range,
                 y=spectrum,
-                histfunc="avg",
+                marker=dict(line=dict(width=0)),
             )
         )
+        fig.update_layout(bargap=0)
     if is_spec_cal:
         fig.update_yaxes(range=[min(spectrum), max(spectrum)])
     return fig
