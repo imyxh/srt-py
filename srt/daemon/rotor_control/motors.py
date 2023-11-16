@@ -308,7 +308,8 @@ class Rot2Motor(Motor):
         cmd = 0x1F  # Rot2 Status Command
         self.send_rot2_pkt(cmd)
         az_relative, el_relative = self.receive_rot2_pkt()
-        return az_relative + self.az_limits[0], el_relative + self.el_limits[0]
+        #return az_relative + self.az_limits[0], el_relative + self.el_limits[0]
+        return az_relative, el_relative
 
     def stop(self):
         """Stops the ROT2 Motor at its Current Location

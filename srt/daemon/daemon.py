@@ -193,7 +193,7 @@ class SmallRadioTelescopeDaemon:
                 az_dif = 0
             else:
                 az_dif = j * self.beamwidth * 0.5 / az_dif_scalar
-    
+
             new_rotor_offsets = (az_dif, el_dif)
 
             if self.rotor.angles_within_bounds(*scan_center):
@@ -559,6 +559,7 @@ class SmallRadioTelescopeDaemon:
                             self.radio_queue.put(("glat", g_lat))
                             self.radio_queue.put(("glon", g_lon))
                         sleep(0.5)
+                        print(f"               NOT WITHIN RANGE {self.rotor_location} vs {current_rotor_cmd_location}")
                 else:
                     past_rotor_location = self.rotor_location
                     self.rotor_location = self.rotor.get_azimuth_elevation()

@@ -1067,6 +1067,9 @@ def register_callbacks(
         else:
             button_id = ctx.triggered[0]["prop_id"].split(".")[0]
             if button_id == "offset-btn-yes":
+                # do not send "None"
+                az = az if az else 0
+                el = el if el else 0
                 command_thread.add_to_queue(f"offset {az} {el}")
             if n_clicks_yes or n_clicks_no or n_clicks_btn:
                 return not is_open
